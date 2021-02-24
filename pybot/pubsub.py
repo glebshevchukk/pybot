@@ -43,12 +43,12 @@ class Subscriber(object):
     def __init__(self,bot):
         self.bot=bot
     
-        self.bot.refresh_topics()
+        self.bot.refresh()
         self.context = zmq.Context()
         self.poller = zmq.Poller()
     
     def get_subscribers(self,topics,callbacks):
-        self.bot.refresh_topics()
+        self.bot.refresh()
         subs = []
         val_topics = []
         val_callbacks=[]
