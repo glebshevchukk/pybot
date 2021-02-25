@@ -59,5 +59,5 @@ def test_service_client():
 
 
 if __name__ == "__main__":
-    #test_rate_pub_sub()
-    test_service_client()
+    test_rate_pub_sub()
+    #test_service_client()
