@@ -1,13 +1,13 @@
-from pybot import Bot, Publisher,Subscriber,ServiceServer,ServiceClient,make_header
+from pybot import Bot, Publisher,Subscriber,ServiceServer,ServiceClient,make_header,make_random_pose
 import random
 import threading
 import numpy as np
 
-topic = ['testing']
+topic = ['base_transform']
 rate = 1.
 
 def random_callback():
-    return make_header()
+    return make_random_pose()
 
 def print_callback(msg):
     print(msg)
@@ -20,7 +20,7 @@ def ret_beep_boop(msg):
 
 
 def launch_publisher(bot):
-    pub = Publisher(bot,'testing')
+    pub = Publisher(bot,'base_transform')
     pub.rate_publish(rate,random_callback)
 
 def launch_subscriber(bot):

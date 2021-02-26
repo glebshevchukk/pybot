@@ -46,8 +46,10 @@ class Subscriber(object):
         self.bot.refresh()
         self.context = zmq.Context()
         self.poller = zmq.Poller()
+        self.val_topics=None
+        self.subs=None
     
-    def get_subscribers(self,topics,callbacks):
+    def get_subscribers(self,topics,callbacks=None):
         self.bot.refresh()
         subs = []
         val_topics = []
@@ -78,11 +80,13 @@ class Subscriber(object):
         Get the latest msg from the current topics. Useful when you don't have a fixed rate that you'd like to get
         info at
         '''
-        msgs = {}    
-        val_topics,subs,_ = self.get_subscribers(topics)
+        msgs = {}  
+
+        if not self.val_topics or not self.subs:
+            self.val_topics,self.subs,_ = self.get_subscribers(topics)
         socks = dict(self.poller.poll())
 
-        for val_topic,sub in zip(val_topics,subs):
+        for val_topic,sub in zip(self.val_topics,self.subs):
             if sub in socks:
                 string = sub.recv()
                 msg= string.decode('utf-8') 

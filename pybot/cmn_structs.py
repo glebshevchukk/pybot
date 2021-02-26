@@ -4,6 +4,7 @@ This file defines common structures (same as those used by ROS) that we would li
 import numpy as np
 import time
 from uuid import uuid4
+import random
 
 class Printable(object):
     def __init__(self):
@@ -89,3 +90,10 @@ def make_header():
     frame_id = str(uuid4())
     head = Header(t,frame_id)
     return head
+
+def make_random_pose():
+    scale = 10.
+    position = Vector3(random.random()*scale,scale,random.random()*scale)
+    orientation = Quaternion(0,0,0,0)
+    pose = Pose(position,orientation)
+    return pose

@@ -69,3 +69,12 @@ class Bot(object):
     def make_action(self,action,port):
         self.db.hset(self.action_key, action, port)
         self.refresh()
+    
+    def get_all_topics(self):
+        return self.topics.keys()
+
+    def get_all_services(self):
+        return self.services.keys()
+        
+    def get_all_actions(self):
+        return self.actions.keys()
