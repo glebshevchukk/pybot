@@ -4,3 +4,4 @@ from pybot.sensor_structs import *
 from pybot.queues import *
 from pybot.pubsub import *
 from pybot.service import *
+from pybot.interfaces import *
