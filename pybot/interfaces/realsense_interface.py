@@ -9,7 +9,8 @@ class RealsenseInterface():
         config = rs.config()
         config.enable_stream(rs.stream.depth,1280, 720, rs.format.z16, 30)
         config.enable_stream(rs.stream.color, 1920, 1080, rs.format.bgr8, 30)
-
+        config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
+        config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
         # Start streaming
         profile = self.pipeline.start(config)
         depth_sensor = profile.get_device().first_depth_sensor()
@@ -24,6 +25,11 @@ class RealsenseInterface():
         # Get aligned frames
         aligned_depth_frame = aligned_frames.get_depth_frame() # aligned_depth_frame is a 640x480 depth image
         color_frame = aligned_frames.get_color_frame()
+        for frame in frames:
+            if frame.is_motion_frame():
+                pose_frame = frame.as_motion_frame().get_motion_data()
+
+                print(pose_frame)
 
         # Validate that both frames are valid
         if not aligned_depth_frame or not color_frame:
@@ -42,5 +48,6 @@ class RealsenseInterface():
         color_image = Image(header,height,width,"BGR8",color_image)
         depth_image = Image(header,height,width,"Z16",depth_image)
         intrin = CameraInfo(height,width,None,None,intrin,None,None)
-
-        return color_image,depth_image,intrin
+        #print(intrin)
+        return intrin
+        #return color_image,depth_image,intrin

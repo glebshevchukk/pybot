@@ -1,1 +1,1 @@
-from pybot.interfaces import *
+from pybot.interfaces.realsense_interface import *
