@@ -37,7 +37,6 @@ function init_scene()
 
     scene.background = new THREE.Color( 0xffffff );
 
-
 	renderer = new THREE.WebGLRenderer( {antialias:true} );
 
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -54,15 +53,6 @@ function init_scene()
 	var gridXY = new THREE.GridHelper(1000, 10,new THREE.Color(0x000066),new THREE.Color(0x000066));
 	gridXY.position.set( 0,0,0 );
 	scene.add(gridXY);
-
-	var loader = new STLLoader()
-    loader.load( './src/stls/car.stl', function ( geometry ) {
-	 var material = new THREE.MeshNormalMaterial()
-	 var mesh = new THREE.Mesh( geometry,material )
-	 robot = new THREE.Group();
-	 robot.add(mesh);
-	 scene.add(robot);
-    });
 }
 
 function animate() 
@@ -74,13 +64,25 @@ function animate()
 
 function update()
 {
-	// if(robot_info.base_transform){
-	// 	let pos = robot_info.base_transform.position
-	// 	let or = robot_info.base_transform.orientation
-	// 	let quaternion = new THREE.Quaternion(or.x,or.y,or.z,or.w)
-	// 	robot.position.set(pos.x,pos.y,pos.z)
-	// 	robot.rotation.setEulerFromQuaternion(quaternion)
-	// }
+	for (const [key, value] of Object.entries(topics_visible)){
+		if(value == true){
+			let info = robot_info[key]
+			let pos = info.pose.position
+			let or = info.pose.orientation
+			let quaternion = new THREE.Quaternion(or.x,or.y,or.z,or.w)
+			
+			let obj = viz_objs[key]
+			
+			obj.position.set(pos.x,pos.y,pos.z)
+		
+			if(key+"_helper" in viz_objs){
+				let obj_helper = viz_objs[key+"_helper"]
+				obj_helper.position.set(pos.x,pos.y,pos.z)
+				obj_helper.update()
+			}
+			//obj.rotation.setEulerFromQuaternion(quaternion)
+		}
+	}
 	controls.update();
 }
 
@@ -107,25 +109,66 @@ function fillActionMenu() {
 			//finally add on click behavior
 			var currbox=document.getElementById(key);
 			currbox.addEventListener("click", function() { setVisibility(key); } );
+
+			//also add the vizualization to the scene at the very end
+			addViz(value.vizType,key)
 		}
 	}
   }
 
 function setVisibility(key){
 	topics_visible[key] = !topics_visible[key]
+
+	if (!topics_visible[key]){
+		scene.remove(topics_visible[key])
+	} else{
+		addViz(robot_info[key].vizType,key)
+	}
+}
+
+function addViz(type,topic){
+	if(type == "camera"){
+		addCameraViz(topic)
+	}
+	else if(type == "tf"){
+		addTFViz(topic)
+	}
+	else if(type == "robot"){
+		addRobotViz(topic)
+	}
+	else{
+		console.log("Viz type not supported yet.")
+	}
 }
 
 function addCameraViz(topic){
-	var cam = new THREE.PerspectiveCamera(topic['fov'], topic['width']/topic['height'], 0.1, 100 );
+	let info = robot_info[topic]
+	var cam = new THREE.PerspectiveCamera(50, info.camera.width/info.camera.height, 0.1, 100 );
+	scene.add(cam);
+	cam.position.set(0,150,400)
 	var helper = new THREE.CameraHelper(cam);
 	scene.add(helper);
-	viz_objs[topic]=helper;
+	viz_objs[topic]=cam;
+	viz_objs[topic+"_helper"]=helper;
 }
 
 function addTFViz(topic){
+	let info = robot_info[topic]
 	var axesHelper = new THREE.AxesHelper( 5 );
-	axesHelper.position= topic['position'];
-	axesHelper.orientation= topic['position'];
-	scene.add( axesHelper );
+	axesHelper.position= info.pose.position;
+	axesHelper.orientation= info.pose.position;
+	scene.add(axesHelper);
 	viz_objs[topic]=axesHelper
+}
+
+function addRobotViz(topic){
+	var loader = new STLLoader()
+    loader.load( './src/stls/car.stl', function ( geometry ) {
+	 var material = new THREE.MeshNormalMaterial()
+	 var mesh = new THREE.Mesh( geometry,material )
+	 robot = new THREE.Group();
+	 robot.add(mesh);
+	 scene.add(robot);
+	 viz_objs[topic]=robot;
+    });
 }

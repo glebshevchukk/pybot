@@ -1,13 +1,18 @@
-from pybot import Bot, Publisher,Subscriber,ServiceServer,ServiceClient,make_header,make_random_pose
+from pybot import Bot, Publisher,Subscriber,ServiceServer,ServiceClient,make_header,make_random_pose,CameraInfo
 import random
 import threading
 import numpy as np
 
-topic = ['base_transform']
+topic = ['main_camera']
 rate = 1.
 
 def random_callback():
     return make_random_pose()
+
+def camera_callback():
+    pose = make_random_pose()
+    info = CameraInfo(width=700,height=500)
+    return {"vizType":"camera","pose":pose,"camera":info}
 
 def print_callback(msg):
     print(msg)
@@ -20,8 +25,8 @@ def ret_beep_boop(msg):
 
 
 def launch_publisher(bot):
-    pub = Publisher(bot,'base_transform')
-    pub.rate_publish(rate,random_callback)
+    pub = Publisher(bot,'main_camera')
+    pub.rate_publish(rate,camera_callback)
 
 def launch_subscriber(bot):
     sub = Subscriber(bot)

@@ -2,4 +2,4 @@
 __pycache__/*
 pybot/__pycache__/*
 *dump.rdb
-
+*__pycache__*

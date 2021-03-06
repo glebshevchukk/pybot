@@ -24,8 +24,8 @@ class BatteryState(Printable):
         self.serial=serial
 
 class CameraInfo(Printable):
-    def __init__(self,height:int,width:int,distortion_model:str,distortion_params:np.ndarray,\
-                intrinsics:np.ndarray,rectification:np.ndarray,processed_intrinsic:np.ndarray):
+    def __init__(self,height:int=None,width:int=None,distortion_model:str=None,distortion_params:np.ndarray=None,\
+                intrinsics:np.ndarray=None,rectification:np.ndarray=None,processed_intrinsic:np.ndarray=None):
         self.height=height
         self.width=width
         self.distortion_model=distortion_model
