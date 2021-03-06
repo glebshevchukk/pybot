@@ -3,9 +3,29 @@
 		<meta charset="utf-8">
 		<title>Pybot visualization</title>
 		<style>
-			body { margin: 0; }
+			#container {
+			position: absolute;
+			z-index: 9;
+			background-color: white;
+			text-align: center;
+			}
+
+			#action-menu {
+			width:200px;
+			box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+			border-radius: 25px;
+			padding: 10px;
+			z-index: 10;
+			}
 		</style>
 	</head>
 	<body>
+	<div id="container">
+		<div id="action-menu">
+		<u>Topics</u>
+		<ul id="topic-list">
+		</ul>
+		</div>
+	</div>
 	</body>
 </html>

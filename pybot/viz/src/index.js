@@ -7,6 +7,8 @@ var OrbitControls = require('three-orbit-controls')(THREE)
 var container, scene, camera, robot, renderer, controls;
 
 var robot_info = {};
+var topics_visible = {};
+var viz_objs = {}
 
 const socket = new WebSocket('ws://localhost:8080/ws');
 socket.addEventListener('message', function (event) {
@@ -14,6 +16,7 @@ socket.addEventListener('message', function (event) {
 	for (const [key, value] of Object.entries(msg)){
 		robot_info[key] = value;
 	}
+	fillActionMenu();
 });
 
 init_scene();
@@ -52,21 +55,14 @@ function init_scene()
 	gridXY.position.set( 0,0,0 );
 	scene.add(gridXY);
 
-    //CAMERA VIZ
-    //var lCam = new THREE.PerspectiveCamera( 75, 1920/1080, 0.1, 100 );
-	//var lHelper = new THREE.CameraHelper(lCam);
-
 	var loader = new STLLoader()
     loader.load( './src/stls/car.stl', function ( geometry ) {
 	 var material = new THREE.MeshNormalMaterial()
 	 var mesh = new THREE.Mesh( geometry,material )
 	 robot = new THREE.Group();
 	 robot.add(mesh);
-	 scene.add( robot );
+	 scene.add(robot);
     });
-
-
-
 }
 
 function animate() 
@@ -78,17 +74,58 @@ function animate()
 
 function update()
 {
-	if(robot_info.base_transform){
-		let pos = robot_info.base_transform.position
-		let or = robot_info.base_transform.orientation
-		let quaternion = new THREE.Quaternion(or.x,or.y,or.z,or.w)
-		robot.position.set(pos.x,pos.y,pos.z)
-		robot.rotation.setEulerFromQuaternion(quaternion)
-	}
+	// if(robot_info.base_transform){
+	// 	let pos = robot_info.base_transform.position
+	// 	let or = robot_info.base_transform.orientation
+	// 	let quaternion = new THREE.Quaternion(or.x,or.y,or.z,or.w)
+	// 	robot.position.set(pos.x,pos.y,pos.z)
+	// 	robot.rotation.setEulerFromQuaternion(quaternion)
+	// }
 	controls.update();
 }
 
 function render() 
 {
 	renderer.render( scene, camera );
+}
+
+function fillActionMenu() {
+	for (const [key, value] of Object.entries(robot_info)){
+		if(!(key in topics_visible)){
+			var ul = document.getElementById("topic-list");
+			var li = document.createElement("li");
+			var checkbox = document.createElement('input');
+			checkbox.type = "checkbox";
+			checkbox.name = key;
+			checkbox.checked = true;
+			checkbox.id = key;
+			li.appendChild(document.createTextNode(key));
+			li.appendChild(checkbox);
+			ul.appendChild(li);
+			topics_visible[key] = true;
+
+			//finally add on click behavior
+			var currbox=document.getElementById(key);
+			currbox.addEventListener("click", function() { setVisibility(key); } );
+		}
+	}
+  }
+
+function setVisibility(key){
+	topics_visible[key] = !topics_visible[key]
+}
+
+function addCameraViz(topic){
+	var cam = new THREE.PerspectiveCamera(topic['fov'], topic['width']/topic['height'], 0.1, 100 );
+	var helper = new THREE.CameraHelper(cam);
+	scene.add(helper);
+	viz_objs[topic]=helper;
+}
+
+function addTFViz(topic){
+	var axesHelper = new THREE.AxesHelper( 5 );
+	axesHelper.position= topic['position'];
+	axesHelper.orientation= topic['position'];
+	scene.add( axesHelper );
+	viz_objs[topic]=axesHelper
 }
