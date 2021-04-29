@@ -28,9 +28,6 @@ class RealsenseInterface():
         for frame in frames:
             if frame.is_motion_frame():
                 pose_frame = frame.as_motion_frame().get_motion_data()
-
-                print(pose_frame)
-
         # Validate that both frames are valid
         if not aligned_depth_frame or not color_frame:
             print("Either color or depth frame is invalid, skipping")
@@ -48,6 +45,4 @@ class RealsenseInterface():
         color_image = Image(header,height,width,"BGR8",color_image)
         depth_image = Image(header,height,width,"Z16",depth_image)
         intrin = CameraInfo(height,width,None,None,intrin,None,None)
-        #print(intrin)
-        return intrin
-        #return color_image,depth_image,intrin
+        return {'color':color_image,'depth':depth_image,'intrin':intrin}

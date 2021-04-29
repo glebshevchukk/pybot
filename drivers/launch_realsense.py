@@ -10,14 +10,9 @@ rate = 10.
 def launch_realsense():
     bot = Bot()
     bot.start()
-    pub = Publisher(bot,"rs_intrin")
+    pub = Publisher(bot,"/rs")
     rs = RealsenseInterface()
-
-    #topics = ["rs_image","rs_depth","rs_intrin"]
     pub.rate_publish(rate,rs.__next__)
-    #pub_thread = threading.Thread(target=pub.rate_publish, args=(rate,rs.__next__,))
-    #pub_thread.start()
-    #pub_thread.join()
 
 if __name__ == "__main__":
     launch_realsense()
